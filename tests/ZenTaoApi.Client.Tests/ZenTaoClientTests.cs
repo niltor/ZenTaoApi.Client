@@ -38,6 +38,69 @@ public sealed class ZenTaoClientTests
     }
 
     [Fact]
+    public async Task DepartmentListAsync_ReadsFlatRootArrayAndSortsByParentDepth()
+    {
+        using var handler = new RecordingHandler(
+            _ => JsonResponse(HttpStatusCode.OK, "{\"token\":\"token\"}"),
+            _ => JsonResponse(HttpStatusCode.OK, """
+                [
+                  {"id":3,"name":"Child","parent":2},
+                  {"id":1,"name":"Root","parent":0},
+                  {"id":2,"name":"Group","parent":1}
+                ]
+                """));
+        using var httpClient = new HttpClient(handler);
+
+        await using var client = await ZenTaoClient.CreateAsync(
+            "https://zentao.example/api.php/v1",
+            "alice",
+            "secret",
+            httpClient);
+
+        var response = await client.Departments.GetListAsync();
+
+        Assert.Equal(new[] { "Root", "Group", "Child" }, response.Departments.Select(department => department.Name));
+        Assert.Null(response.Total);
+        Assert.Equal(1, response.Departments[1].Parent);
+    }
+
+    [Fact]
+    public async Task DepartmentListAsync_FlattensNestedItemsAndInfersMissingParent()
+    {
+        using var handler = new RecordingHandler(
+            _ => JsonResponse(HttpStatusCode.OK, "{\"token\":\"token\"}"),
+            _ => JsonResponse(HttpStatusCode.OK, """
+                [
+                  {
+                    "id":1,
+                    "name":"Root",
+                    "parent":0,
+                    "items":[
+                      {"id":3,"name":"Leaf","parent":2},
+                      {"id":2,"name":"Group","items":[{"id":4,"name":"Team"}]}
+                    ]
+                  }
+                ]
+                """));
+        using var httpClient = new HttpClient(handler);
+
+        await using var client = await ZenTaoClient.CreateAsync(
+            "https://zentao.example/api.php/v1",
+            "alice",
+            "secret",
+            httpClient);
+
+        var response = await client.Departments.GetListAsync();
+
+        Assert.Equal(new[] { "Root", "Group", "Leaf", "Team" }, response.Departments.Select(department => department.Name));
+        Assert.Equal(1, response.Departments.Single(department => department.Id == 2).Parent);
+        Assert.Equal(2, response.Departments.Single(department => department.Id == 4).Parent);
+        Assert.All(response.Departments, department =>
+            Assert.True(department.AdditionalProperties is null ||
+                        !department.AdditionalProperties.ContainsKey("items")));
+    }
+
+    [Fact]
     public async Task UnauthorizedResponse_RefreshesTokenAndRetriesOnce()
     {
         using var handler = new RecordingHandler(

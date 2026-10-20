@@ -9,7 +9,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
 
     <PackageId>ZenTaoApi.Client</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>niltor</Authors>
     <Description>A lightweight .NET client for ZenTao RESTful API v1.</Description>
     <PackageTags>zentao;restful;api;http-client;project-management</PackageTags>
