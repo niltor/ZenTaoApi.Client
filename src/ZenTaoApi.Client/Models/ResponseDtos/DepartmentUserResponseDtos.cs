@@ -8,6 +8,7 @@ public sealed class DepartmentResponse : ZenTaoEntityResponse
     public int? Order { get; set; }
 }
 
+[JsonConverter(typeof(DepartmentListResponseJsonConverter))]
 public sealed class DepartmentListResponse : ZenTaoListResponse<DepartmentResponse>
 {
     public List<DepartmentResponse> Departments { get; set; } = [];

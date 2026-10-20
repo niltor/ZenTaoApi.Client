@@ -37,7 +37,6 @@ jobs:
           --configuration Release
           --no-restore
           --output artifacts
-          /p:PackageVersion=0.1.0
 
       - name: NuGet login (OIDC)
         uses: NuGet/login@v1

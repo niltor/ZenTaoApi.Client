@@ -212,7 +212,7 @@ $env:ZENTAO_PASSWORD = "your-password"
 2. 将 NuGet 用户名保存为 GitHub Actions secret `NUGET_USER`（使用 NuGet profile name，不是邮箱）。
 3. policy 的 workflow file 填写 `pack.yml`。
 
-NuGet Trusted Publishing 还要求工作流拥有 `id-token: write` 权限；该权限已在 `pack.yml` 中配置。当前准备发布的 NuGet 版本为 `0.1.0`。正式发布后，发布同一版本需要先更新包版本号。
+NuGet Trusted Publishing 还要求工作流拥有 `id-token: write` 权限；该权限已在 `pack.yml` 中配置。本次发布版本为 `0.1.1`，包版本统一由 `ZenTaoApi.Client.csproj` 中的 `<Version>` 决定；每次发布新包前更新该版本号。
 
 ## 文档
 
